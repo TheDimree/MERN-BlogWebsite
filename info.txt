@@ -1,0 +1,24 @@
+Start server: 
+1. open backend folder :- cd .\backend\
+2. Run server:- nodemon .\index.js
+type tab for full name 
+
+Run React App: 
+1. open frontend folder.
+2. run react app:- npm start
+
+
+
+fields: 
+visiblity : public, private
+views_count:
+======
+
+login check after saving users in signup 
+views on the post
+add post.
+
+
+======
+add blog 
+edit me info leke update.

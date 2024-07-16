@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Outfit", sans-serif;
+}
+
+body {
+  /* background-color: #ADD8E6; */
+}
+
+
+/* ------- Media Query -------*/
+
+@media(max-width: 1200px) {
+  
+  /* .btn {
+      padding: 14px 22px;
+
+  } */
+}
