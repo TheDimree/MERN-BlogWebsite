@@ -1,56 +1,78 @@
 import React, { useEffect, useState } from "react";
-import { useLoaderData } from 'react-router-dom'
+import { useLoaderData } from "react-router-dom";
 // import { FaClock, FaUser } from 'react-icons/fa';
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
-// import DatePicker from 'react-datepicker';
-// import 'react-datepicker/dist/react-datepicker.css';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 export default function BlogEdit() {
-
-  //Checking commit by adding comment.
   const { blog, blogs } = useLoaderData();
   // console.log("blog: ", blog, "\nblogs: ", blogs)
-  const { title, category, author, published_date, reading_time, content, visibility } = blog;
-
-  const [titleS, setTitleS] = useState('');
-  // const [pic, setPic] = useState(null);
-  const [categoryS, setCategoryS] = useState('Select Category');
-  const [authorS, setAuthorS] = useState('Select Author');
-  const [dateS, setDateS] = useState('');
-  // const [selectedDate, setSelectedDate] = useState(null);
+  const {
+    _id,
+    title,
+    category,
+    author,
+    published_date,
+    reading_time,
+    content,
+    visibility,
+    tags,
+    image,
+    views_count,
+    authorPic,
+  } = blog;
+  const [titleS, setTitleS] = useState("");
+  const [categoryS, setCategoryS] = useState("Select Category");
+  const [authorS, setAuthorS] = useState("Select Author");
+  const [selectedDate, setSelectedDate] = useState(null);
   const [readingTimeS, setReadingTimeS] = useState(0);
-  const [contentS, setContentS] = useState('');
-  // const [tagsS, setTagsS] = useState([]);
-  // const [inputValue, setInputValue] = useState('');
-  const [visibilityS, setVisibilityS] = useState('Select Visibility');
-  // const [views, setViews] = useState(getViews);
+  const [contentS, setContentS] = useState("");
+  const [visibilityS, setVisibilityS] = useState("Select Visibility");
+  const [authorPicS, setAuthorPicS] = useState("");
+  const [viewsS, setViewsS] = useState(0);
 
-  const [formData, setFormData] = useState({})
+  //* pending functionality
+  // const [tagsS, setTagsS] = useState([]);
+  // const [newTagsS, setNewTagsS] = useState('');
+  const [imageS, setImageS] = useState(null); //* change image pending
+
+  const [formData, setFormData] = useState({});
 
   const [uniqueSortedCategories, setUniqueSortedCategories] = useState([]);
   const [uniqueSortedAuthors, setUniqueSortedAuthors] = useState([]);
 
   const uniqueFunction = (parameter, setter) => {
-    const filtering = blogs.filter((blog, index, self) => {
-      return index === self.findIndex((t) => (t[parameter] === blog[parameter]))  //dynamic access
-    }).map((obj, i, objArr) => obj[parameter]).sort()
-    setter(filtering)
-  }
+    const filtering = blogs
+      .filter((blog, index, self) => {
+        return (
+          index === self.findIndex((t) => t[parameter] === blog[parameter])
+        ); //dynamic access
+      })
+      .map((obj, i, objArr) => obj[parameter])
+      .sort();
+    setter(filtering);
+  };
 
   useEffect(() => {
-    setTitleS(title)
-    setCategoryS(category)
-    setAuthorS(author)
-    setDateS(published_date)
-    setReadingTimeS(reading_time)
-    setContentS(content)
-    setVisibilityS(visibility)
-    uniqueFunction("category", setUniqueSortedCategories)
-    uniqueFunction('author', setUniqueSortedAuthors)
-    getCurrentDate()
-    getReadingTime();
-  }, [blogs, title, category, author, published_date, reading_time, content, visibility]);
+    setTitleS(title);
+    setCategoryS(category);
+    setAuthorS(author);
+    setSelectedDate(published_date);
+    setContentS(content);
+    setVisibilityS(visibility);
+    setViewsS(views_count);
+    setAuthorPicS("author1.jpg");
+    setImageS(image);
+
+    getReadingTime(); // updating reading time
+    // setTagsS(tags);
+
+    uniqueFunction("category", setUniqueSortedCategories);
+    uniqueFunction("author", setUniqueSortedAuthors);
+    // getCurrentDate()
+  }, []);
 
   const handleCategorySelect = (category) => {
     setCategoryS(category);
@@ -66,97 +88,104 @@ export default function BlogEdit() {
   const handleTitle = (event) => {
     const getTitle = event.target.value;
     setTitleS(getTitle);
-    console.log(title)
-  }
+    console.log(title);
+  };
 
-  // const handleInputChange = (event) => {
-  //   setInputValue(event.target.value);
+  //* Tags functionality
+  // const handleTagDelete = (index) => {
+  //   const updatedTags = tagsS.filter((_, i) => i !== index);
+  //   setTagsS(updatedTags);
+  //   console.log("deleted tag: ", tagsS)
   // };
 
   // const handleInputKeyDown = (event) => {
-  //   if (event.key === 'Enter' && inputValue.trim()) {
-  //     setTags([...tags, inputValue.trim()]);
-  //     setInputValue('');
+  //   if (event.key === "Enter" && newTagsS.trim()) {
+  //     setTagsS([...newTagsS, newTagsS.trim()]);
+  //     setNewTagsS("");
   //   }
   // };
 
-  // const handleTagDelete = (index) => {
-  //   setTags(tags.filter((_, i) => i !== index));
-  // };
+  // const handleTagInput = (event) => {
+  //   setNewTagsS(event.target.value)
+  //   console.log("newTags: ", newTagsS)
+  //   console.log("tags:", tagsS);
+  // }
 
+  //* Content functionality
   const handleContent = (event) => {
     const getContent = event.target.value;
     setContentS(getContent);
     console.log(content);
-  }
+  };
 
-  // const clearFormData = () => { 
-  //   setTitleS("");
-  //   // setPic(null);
-  //   // setDateS("");
-  //   setReadingTimeS(0);
-  //   setContentS("");
-  //   // setTags([]);
-  //   setCategoryS("Select Category");
-  //   setAuthorS("Select Author");
-  //   setVisibilityS("Select Visibility");
-  //   // setViews(0);
-  // };
-
-  function getCurrentDate() {
-    const date = new Date();
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-    const year = date.getFullYear(); // Full year
-    setDateS(`${day}/${month}/${year}`);
-  }
+  //* Date functionality
+  // function getCurrentDate() {
+  //   const date = new Date();
+  //   const day = String(date.getDate()).padStart(2, '0');
+  //   const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+  //   const year = date.getFullYear(); // Full year
+  //   setSelectedDate(`${day}/${month}/${year}`);
+  // }
 
   const handleDateChange = (date) => {
-    // setSelectedDate(date);
-  }
+    setSelectedDate(date);
+  };
   const getReadingTime = () => {
-    // const getTime = (60/300) * content.split(" ").filter((element) => {return element.length!==0}).length
-    // setReadingTimeS(getTime);
-  }
+    // 300 words per minute.
+    const getTime =
+      (60 / 300) *
+      contentS.split(" ").filter((element) => element.length !== 0).length;
+    setReadingTimeS(getTime);
+    // console.log("got time updated", getTime);
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!titleS || !categoryS || !authorS || !dateS || !readingTimeS || !contentS || !visibilityS) {
-      setFormData({ //* creating an object from all useStates
-        title: titleS,
-        category: categoryS,
-        author: authorS,
-        content: contentS,
-        visibility: visibilityS,
-        // published_date: dateS,
-        reading_time: readingTimeS,
-      });
+    setFormData({
+      //* creating an object from all useStates
+      id: _id,
+      title: titleS,
+      image: imageS,
+      category: categoryS,
+      author: authorS,
+      authorPic: authorPicS,
+      published_date: selectedDate,
+      reading_time: readingTimeS,
+      content: contentS,
+      tags: tags,
+      visibility: visibilityS,
+      views_count: viewsS,
+    });
+    console.log("formData to be send:", formData);
 
-      try {
-        const response = await fetch("http://localhost:8008/editblog", {
-          method: "POST",
-          body: JSON.stringify(formData),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        const data = await response.json();
-        // clearFormData();
-        console.log(data);
-      } catch (error) {
-        console.error("Error:", error);
-      }
+    try {
+      const response = await fetch("http://localhost:8008/editblog", {
+        method: "POST",
+        body: JSON.stringify(formData),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      // clearFormData();
+      console.log(data);
+    } catch (error) {
+      console.error("Error:", error);
     }
   };
   return (
     <div className="w-1/2   mx-auto my-12 container mb-40">
-      {/* {tags.map((obj, i) => 
-      tags
-      )} */}
-      <form method="POST" action="/addblog" onSubmit={handleSubmit}>
+      <form method="POST" action="/editblog" onSubmit={handleSubmit}>
         <div className="form-group mb-4">
           <label htmlFor="title">Title</label>
-          <input type="text" className="form-control" value={titleS} id="title" name="title" onChange={handleTitle} />
+          <input
+            type="text"
+            className="form-control"
+            value={titleS}
+            id="title"
+            name="title"
+            onChange={handleTitle}
+          />
         </div>
         <div className="form-group mb-4">
           <label htmlFor="content">Content</label>
@@ -170,18 +199,23 @@ export default function BlogEdit() {
           ></textarea>
         </div>
 
-        {/* <div className="form-group mb-4">
-          <label htmlFor="date">Published Date</label>
+        <div className="form-group mb-4">
+          <label
+            htmlFor="date"
+            className="block text-gray-700 font-medium mb-2"
+          >
+            Published Date
+          </label>
           <DatePicker
             id="date"
             name="date"
             selected={selectedDate}
             onChange={handleDateChange}
-            dateFormat="DD/MM/YYYY"
-            className="form-control mb-2 p-2 border border-gray-300 rounded"
+            dateFormat="dd/MM/yyyy"
+            className="form-control mb-2 p-2 border border-gray-300 rounded w-full"
             calendarClassName="react-datepicker"
-          ></DatePicker>
-        </div> */}
+          />
+        </div>
 
         <div className="form-group mb-4">
           <label htmlFor="category">Category</label>
@@ -198,11 +232,15 @@ export default function BlogEdit() {
 
             <MenuItems
               transition
-              className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none overflow-y-auto max-h-60">
+              className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none overflow-y-auto max-h-60"
+            >
               {uniqueSortedCategories.map((obj, i) => (
                 <div className="py-1" key={i}>
                   <MenuItem>
-                    <div className="block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900" onClick={() => handleCategorySelect(obj)}>
+                    <div
+                      className="block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900"
+                      onClick={() => handleCategorySelect(obj)}
+                    >
                       {obj}
                     </div>
                   </MenuItem>
@@ -210,7 +248,6 @@ export default function BlogEdit() {
               ))}
             </MenuItems>
           </Menu>
-
         </div>
 
         <div className="form-group mb-4">
@@ -227,13 +264,21 @@ export default function BlogEdit() {
             </div>
             <MenuItems
               transition
-              className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in overflow-y-auto max-h-60" name='author'>
-              {uniqueSortedAuthors.map((obj, i) => (<div className="py-1" key={i}><MenuItem>
-                <div className="block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900" onClick={() => handleAuthorSelect(obj)}>
-                  {obj}
+              className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in overflow-y-auto max-h-60"
+              name="author"
+            >
+              {uniqueSortedAuthors.map((obj, i) => (
+                <div className="py-1" key={i}>
+                  <MenuItem>
+                    <div
+                      className="block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900"
+                      onClick={() => handleAuthorSelect(obj)}
+                    >
+                      {obj}
+                    </div>
+                  </MenuItem>
                 </div>
-              </MenuItem></div>))
-              }
+              ))}
             </MenuItems>
           </Menu>
         </div>
@@ -253,22 +298,29 @@ export default function BlogEdit() {
 
             <MenuItems
               transition
-              className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in overflow-y-auto max-h-60" name='author'>
-              <div className="py-1"><MenuItem>
-                {() => (
-                  <div
-                    className={`block px-4 py-2 text-sm text-gray-700`} onClick={() => handleVisibilitySelect('Public')}
-                  >
-                    Public
-                  </div>
-                )}
-              </MenuItem></div>
+              className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in overflow-y-auto max-h-60"
+              name="author"
+            >
+              <div className="py-1">
+                <MenuItem>
+                  {() => (
+                    <div
+                      className={`block px-4 py-2 text-sm text-gray-700`}
+                      onClick={() => handleVisibilitySelect("Public")}
+                    >
+                      Public
+                    </div>
+                  )}
+                </MenuItem>
+              </div>
               <div className="py-1">
                 <MenuItem>
                   {({ active }) => (
                     <div
-                      onClick={() => handleVisibilitySelect('Private')}
-                      className={`block px-4 py-2 text-sm text-gray-700 ${active ? 'bg-gray-100 text-gray-900' : ''}`}
+                      onClick={() => handleVisibilitySelect("Private")}
+                      className={`block px-4 py-2 text-sm text-gray-700 ${
+                        active ? "bg-gray-100 text-gray-900" : ""
+                      }`}
                     >
                       Private
                     </div>
@@ -278,15 +330,49 @@ export default function BlogEdit() {
             </MenuItems>
           </Menu>
         </div>
+
+        <div className="form-group mb-4">
+          <label
+            htmlFor="image"
+            className="block text-gray-700 font-medium mb-2"
+          >
+            Blog Image
+          </label>
+          <img
+            src={imageS}
+            alt="Description"
+            className="form-control mb-2 p-2 border border-gray-300 rounded w-full"
+            id="image"
+          />
+        </div>
+
+        {/* //* Tags functionality pending. */}
         {/* <div className="form-group mb-4">
           <label htmlFor="tags">Tags</label>
-          <input type="text" className="form-control" value={inputValue} id="tags" name="tags"  onChange={handleInputChange} onKeyDown={handleInputKeyDown} placeholder="Enter tags and press Enter" />
-          <div>Tags
-            {tags.map((tag, index) => (
-            <span key={index} style={{ display: 'inline-block', padding: '5px', margin: '5px', background: '#e0e0e0', borderRadius: '3px' }}>
-              {tag}
-            <button onClick={() => handleTagDelete(index)} style={{ marginLeft: '5px' }}>x</button>
-            </span>
+          <input
+            type="text"
+            className="p-2 border border-gray-300 rounded w-full"
+            value={newTagsS}
+            id="tags"
+            name="tags"
+            onChange={handleTagInput}
+            onKeyDown={handleInputKeyDown}
+            placeholder="Enter tags separated by space and press Enter"
+          />
+          <div className="mt-2">
+            {tagsS.map((tag, index) => (
+              <span
+                key={index}
+                className="inline-block px-2 py-1 m-1 bg-gray-200 rounded text-sm"
+              >
+                {tag}
+                <button
+                  onClick={() => handleTagDelete(index)}
+                  className="ml-2 text-red-500"
+                >
+                  X
+                </button>
+              </span>
             ))}
           </div>
         </div> */}
@@ -300,6 +386,42 @@ export default function BlogEdit() {
             <button type="submit" className="btn dark-btn btn-success">Upload</button>
           </form>
         </div> */}
+
+        <div className="form-group mb-4">
+          <label htmlFor="views">Views</label>
+          <input
+            type="number"
+            className="form-control"
+            value={viewsS}
+            id="views"
+            name="views"
+            onChange={(event) => {
+              setViewsS(event.target.value);
+            }}
+          />
+        </div>
+        <div className="form-group mb-4">
+          <label
+            htmlFor="reading_time"
+            className="block text-gray-700 font-medium mb-2"
+          >
+            Reading Time
+          </label>
+          <div className="flex items-center mb-2">
+            <span className="mx-2">
+              {readingTimeS < 60
+                ? `${readingTimeS} minutes`
+                : `${readingTimeS / 60} hours`}{" "}
+            </span>
+            {/* <button
+              type="button"
+              className="p-2 border border-gray-300 rounded bg-blue-500 text-white font-medium"
+              onClick={()=> getReadingTime()}
+            >
+              Update
+            </button> */}
+          </div>
+        </div>
 
         <button type="submit" className="btn dark-btn btn-primary">
           Save
