@@ -8,6 +8,7 @@ import { ChevronDownIcon } from "@heroicons/react/20/solid";
 
 export default function BlogEdit() {
 
+  //Checking commit by adding comment.
   const { blog, blogs } = useLoaderData();
   // console.log("blog: ", blog, "\nblogs: ", blogs)
   const { title, category, author, published_date, reading_time, content, visibility } = blog;
