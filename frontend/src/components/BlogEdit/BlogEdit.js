@@ -25,7 +25,7 @@ export default function BlogEdit() {
     authorPic,
   } = blog;
 
-  const navigate = useNavigate(); //* route to admin page after editing the blog.
+  // const navigate = useNavigate(); //* route to admin page after editing the blog.
 
   const [titleS, setTitleS] = useState("");
   const [categoryS, setCategoryS] = useState("Select Category");
@@ -38,8 +38,8 @@ export default function BlogEdit() {
   const [viewsS, setViewsS] = useState(0);
 
   //* pending functionality
-  // const [tagsS, setTagsS] = useState([]);
-  // const [newTagsS, setNewTagsS] = useState('');
+  const [tagsS, setTagsS] = useState([]);
+  const [inputTagsS, setInputTagsS] = useState('');
   const [imageS, setImageS] = useState(null); //* change image pending
 
   const [uniqueSortedCategories, setUniqueSortedCategories] = useState([]);
@@ -69,8 +69,8 @@ export default function BlogEdit() {
     setImageS(image);
 
     getReadingTime(); // updating reading time
-    console.log("called")
-    // setTagsS(tags);
+    // console.log("called")
+    setTagsS(tags);
 
     uniqueFunction("category", setUniqueSortedCategories);
     uniqueFunction("author", setUniqueSortedAuthors);
@@ -97,24 +97,29 @@ export default function BlogEdit() {
   };
 
   //* Tags functionality
-  // const handleTagDelete = (index) => {
-  //   const updatedTags = tagsS.filter((_, i) => i !== index);
-  //   setTagsS(updatedTags);
-  //   console.log("deleted tag: ", tagsS)
-  // };
+  const handleTagInput = (event) => {
+    setInputTagsS(event.target.value)
+    console.log("inputTagsS: ", inputTagsS)
+    console.log("tags:", tagsS);
+  }
 
-  // const handleInputKeyDown = (event) => {
-  //   if (event.key === "Enter" && newTagsS.trim()) {
-  //     setTagsS([...newTagsS, newTagsS.trim()]);
-  //     setNewTagsS("");
-  //   }
-  // };
+  const handleInputKeyDown = (event) => {
+    if (event.key === "Enter" && inputTagsS.trim().length>0) {
+      const newTagsAr = inputTagsS.trim().split(" ");
+      setTagsS(tagsS.concat(newTagsAr));
+      setInputTagsS('')
+      // event.target.value = '';
+    }
+  };
 
-  // const handleTagInput = (event) => {
-  //   setNewTagsS(event.target.value)
-  //   console.log("newTags: ", newTagsS)
-  //   console.log("tags:", tagsS);
-  // }
+  const handleTagDelete = (index) => {
+    console.log("deleting tags")
+    const updatedTags = tagsS.filter((_, i) => i !== index);
+    setTagsS(updatedTags);
+    console.log("Updated tags: ", tagsS)
+  };
+
+  
 
   //* Content functionality
   const handleContent = (event) => {
@@ -142,7 +147,7 @@ export default function BlogEdit() {
       (60 / 300) *
       contentS.split(" ").filter((element) => element.length !== 0).length;
     setReadingTimeS(getTime);
-    console.log("got time updated", getTime);
+    // console.log("got time updated", getTime);
   };
 
   const handleSubmit = async (event) => {
@@ -158,7 +163,7 @@ export default function BlogEdit() {
       published_date: selectedDate,
       reading_time: readingTimeS,
       content: contentS,
-      tags: tags,
+      tags: tagsS,
       visibility: visibilityS,
       views_count: viewsS,
     }
@@ -174,7 +179,7 @@ export default function BlogEdit() {
       });
       const msg = await response.json();
       // console.log(msg);
-      navigate('/admin');
+      // navigate('/admin');
 
     } catch (error) {
       console.error("Error:", error);
@@ -353,13 +358,24 @@ export default function BlogEdit() {
           />
         </div>
 
+        {/* //* Uploading Pic using Multer-middleware */}
+        <div className="form-group mb-4">
+          <label htmlFor="file" className="mr-2">
+            Blog Pic
+          </label>
+          <form action="/uploadblogpic" method="POST" enctype="multipart/form-data">
+            <input type="file" name="blogPic" />
+            <button type="submit" className="btn dark-btn btn-success">Change</button>
+          </form>
+        </div>
+
         {/* //* Tags functionality pending. */}
-        {/* <div className="form-group mb-4">
+        <div className="form-group mb-4">
           <label htmlFor="tags">Tags</label>
           <input
             type="text"
             className="p-2 border border-gray-300 rounded w-full"
-            value={newTagsS}
+            value={inputTagsS}
             id="tags"
             name="tags"
             onChange={handleTagInput}
@@ -372,7 +388,7 @@ export default function BlogEdit() {
                 key={index}
                 className="inline-block px-2 py-1 m-1 bg-gray-200 rounded text-sm"
               >
-                {tag}
+                {tags}
                 <button
                   onClick={() => handleTagDelete(index)}
                   className="ml-2 text-red-500"
@@ -382,17 +398,7 @@ export default function BlogEdit() {
               </span>
             ))}
           </div>
-        </div> */}
-
-        {/* <div className="form-group mb-4">
-          <label htmlFor="file" className="mr-2">
-            Blog Pic
-          </label>
-          <form action="/uploadblogpic" method="post" enctype="multipart/form-data">
-            <input type="file" name="blogPic" />
-            <button type="submit" className="btn dark-btn btn-success">Upload</button>
-          </form>
-        </div> */}
+        </div>
 
         <div className="form-group mb-4">
           <label htmlFor="views">Views</label>

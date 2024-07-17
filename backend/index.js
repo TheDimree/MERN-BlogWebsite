@@ -7,6 +7,8 @@ const { blogsModel } = require("./collections/blogs.js"); //Destructuring
 const { signupModel } = require("./collections/signup.js"); //Destructuring
 // const blogs = require('./api/blogsData.json')
 const multer  = require('multer')
+// const path = require('path')
+
 
 const app = express();
 const port = 8008;
@@ -15,6 +17,7 @@ const port = 8008;
 app.use(cors()); // cross platform
 app.use(express.json()); // To parse JSON bodies
 app.use(express.urlencoded({ extended: false })); // To parse URL-encoded bodies
+// app.use(express.static(path.join(__dirname, 'uploads')))  //serving static files.
 
 //* MongoDB connected successfully
 connection();
@@ -42,25 +45,31 @@ app.get("/blogs", async (req, res) => {
 //* Multer for uploading Pics
 const myStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/');
+    cb(null, './uploads');
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
+    cb(null, file.fieldname + '-' + Date.now());
   }
 });
 
-const uploadBlogPics = multer({ storage: myStorage });
+const upload = multer({ storage: myStorage });  // OR  upload = multer({ myStorage })
 
-app.post('/uploadblogpic', uploadBlogPics.single('image'), async (req, res) => {
-  console.log("Uploading pic")
-  const picture = new Picture({
-    title: req.body.title,
-    imagePath: req.file.path
-  });
+app.post('/uploadblogpic', upload.single('blogPic'), (req, res) => {
   try {
-    const savedPicture = await pictureModel.save();
-    res.status(200).json(savedPicture);
+    console.log(req.file)
+    console.log("Uploaded pic.")
+  // const picture = new Picture({
+  //   title: req.body.title,
+  //   imagePath: req.file.path
+  // });
+  // try {
+  //   const savedPicture = await pictureModel.save();
+  //   res.status(200).json(savedPicture);
+  // } catch (error) {
+  //   res.status(400).json({ message: error.message });
+  // }
   } catch (error) {
+    console.log("Error uploading the file", error)
     res.status(400).json({ message: error.message });
   }
 });
