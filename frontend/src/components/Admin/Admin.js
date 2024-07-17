@@ -31,7 +31,7 @@ export default function Admin() {
             <tr>
                 {blogs.map((blog) => {
                     return (
-                        <Link to={`/blogs/${blog.id}`}><div className='flex justify-between items-center'>
+                        <Link to={`/blogs/${blog._id}`}><div className='flex justify-between items-center'>
                             <td className='py-2 px-2'><img src={blog.image} alt={blog.title} className="md:h-16 w-36 object-cover mb-2 sm:h-16 w-24 h-9" /></td>
                             <td className='py-2 px-2 w-1/3'>{blog.title}</td>
                             <td className='py-2 px-2'>{blog.author}</td>

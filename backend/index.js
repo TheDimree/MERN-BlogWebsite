@@ -169,26 +169,6 @@ app.post('/signin', async (req, res) => {
   }
 })
 
-app.post('/addblog', async (req, res) => {
-  const views_count = 0
-  const { title, category, author, published_date, reading_time, content, visibility } = req.body;  //Destructuring
-  // image, tags, views_count
-  if (!title || !category  || !author || !published_date || !reading_time  || !content  || !visibility) {
-    return res.status(400).send({ error: 'All fields are required' });
-  }
-  const data = new signupModel({ title, category, author, published_date, reading_time, content, visibility, views_count });
-
-  try {
-    const doc = await data.save();
-    console.log("Data saved successfully: ", doc);
-    res.status(201).send(doc);
-  } catch (error) {
-    console.error("Error saving data: ", error);
-    res.status(400).send({ message: error.message });
-  }
-  // console.log(blog)
-})
-
 app.post('/editblog', async (req, res) => {
   
   const { id,
@@ -219,18 +199,51 @@ app.post('/editblog', async (req, res) => {
     authorPic, });
 
   try {
-    const updatedBlog = await blogsModel.findByIdAndUpdate(id, {
-      title, category, author, published_date, reading_time, content, visibility, tags, image, views_count, authorPic
-    }, { new: true });
-    if (!updatedBlog) {
-      return res.status(404).json({ error: 'Blog not found' });
+    const blog = await blogsModel.findById(id);
+
+    if (!blog) {
+      return res.status(404).json({ error: 'Post not found' });
     }
-    res.status(200).json(updatedBlog);
+
+    blog.title = title;
+    blog.image = image;
+    blog.category = category;
+    blog.author = author;
+    blog.authorPic = authorPic;
+    blog.published_date = published_date;
+    blog.reading_time = reading_time;
+    blog.content = content;
+    blog.tags = tags;
+    blog.visibility = visibility;
+    blog.views_count = views_count
+
+    await blog.save();
+    res.json({ message: 'Blog updated successfully' });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
+})
+
+app.post('/addblog', async (req, res) => {
+  const views_count = 0
+  const { title, category, author, published_date, reading_time, content, visibility } = req.body;  //Destructuring
+  // image, tags, views_count
+  if (!title || !category  || !author || !published_date || !reading_time  || !content  || !visibility) {
+    return res.status(400).send({ error: 'All fields are required' });
+  }
+  const data = new signupModel({ title, category, author, published_date, reading_time, content, visibility, views_count });
+
+  try {
+    const doc = await data.save();
+    console.log("Data saved successfully: ", doc);
+    res.status(201).send(doc);
+  } catch (error) {
+    console.error("Error saving data: ", error);
+    res.status(400).send({ message: error.message });
+  }
   // console.log(blog)
 })
+
 
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);

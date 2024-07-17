@@ -5,6 +5,7 @@ import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useNavigate } from 'react-router-dom';
 
 export default function BlogEdit() {
   const { blog, blogs } = useLoaderData();
@@ -23,6 +24,9 @@ export default function BlogEdit() {
     views_count,
     authorPic,
   } = blog;
+
+  const navigate = useNavigate(); //* route to admin page after editing the blog.
+
   const [titleS, setTitleS] = useState("");
   const [categoryS, setCategoryS] = useState("Select Category");
   const [authorS, setAuthorS] = useState("Select Author");
@@ -37,8 +41,6 @@ export default function BlogEdit() {
   // const [tagsS, setTagsS] = useState([]);
   // const [newTagsS, setNewTagsS] = useState('');
   const [imageS, setImageS] = useState(null); //* change image pending
-
-  const [formData, setFormData] = useState({});
 
   const [uniqueSortedCategories, setUniqueSortedCategories] = useState([]);
   const [uniqueSortedAuthors, setUniqueSortedAuthors] = useState([]);
@@ -67,12 +69,15 @@ export default function BlogEdit() {
     setImageS(image);
 
     getReadingTime(); // updating reading time
+    console.log("called")
     // setTagsS(tags);
 
     uniqueFunction("category", setUniqueSortedCategories);
     uniqueFunction("author", setUniqueSortedAuthors);
     // getCurrentDate()
   }, []);
+
+  
 
   const handleCategorySelect = (category) => {
     setCategoryS(category);
@@ -88,7 +93,7 @@ export default function BlogEdit() {
   const handleTitle = (event) => {
     const getTitle = event.target.value;
     setTitleS(getTitle);
-    console.log(title);
+    console.log("title", titleS);
   };
 
   //* Tags functionality
@@ -115,7 +120,8 @@ export default function BlogEdit() {
   const handleContent = (event) => {
     const getContent = event.target.value;
     setContentS(getContent);
-    console.log(content);
+    // console.log(content);
+    getReadingTime();
   };
 
   //* Date functionality
@@ -136,13 +142,13 @@ export default function BlogEdit() {
       (60 / 300) *
       contentS.split(" ").filter((element) => element.length !== 0).length;
     setReadingTimeS(getTime);
-    // console.log("got time updated", getTime);
+    console.log("got time updated", getTime);
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setFormData({
-      //* creating an object from all useStates
+    getReadingTime();
+    const formData = {      //* creating an object from all useStates
       id: _id,
       title: titleS,
       image: imageS,
@@ -155,8 +161,8 @@ export default function BlogEdit() {
       tags: tags,
       visibility: visibilityS,
       views_count: viewsS,
-    });
-    console.log("formData to be send:", formData);
+    }
+    // console.log("formData to be send:", formData);
 
     try {
       const response = await fetch("http://localhost:8008/editblog", {
@@ -166,9 +172,10 @@ export default function BlogEdit() {
           "Content-Type": "application/json",
         },
       });
-      const data = await response.json();
-      // clearFormData();
-      console.log(data);
+      const msg = await response.json();
+      // console.log(msg);
+      navigate('/admin');
+
     } catch (error) {
       console.error("Error:", error);
     }
@@ -411,7 +418,7 @@ export default function BlogEdit() {
             <span className="mx-2">
               {readingTimeS < 60
                 ? `${readingTimeS} minutes`
-                : `${readingTimeS / 60} hours`}{" "}
+                : `{${readingTimeS}/ 60} hours`}
             </span>
             {/* <button
               type="button"
