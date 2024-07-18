@@ -29,19 +29,6 @@ app.get("/", (req, res) => {
   res.send("Blog server is running!");
 });
 
-//* Blogs rendered using json file: const blogs = require('./api/blogsData.json')
-// app.get('/blogs', (req, res) => {
-//   res.send(blogs)
-// })
-
-//* Blogs rendering using DB
-app.get("/blogs", async (req, res) => {
-  await blogsModel
-    .find()
-    .then((blogs) => res.json(blogs))
-    .catch((err) => res.json("Error = ", err));
-});
-
 //* Multer for uploading Pics
 const myStorage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -54,7 +41,7 @@ const myStorage = multer.diskStorage({
 
 const upload = multer({ storage: myStorage });  // OR  upload = multer({ myStorage })
 
-app.post('/uploadblogpic', upload.single('blogPic'), (req, res) => {
+app.post("/blogimg", upload.single('blogPic'), (req, res) => {
   try {
     console.log(req.file)
     console.log("Uploaded pic.")
@@ -74,6 +61,18 @@ app.post('/uploadblogpic', upload.single('blogPic'), (req, res) => {
   }
 });
 
+//* Blogs rendered using json file: const blogs = require('./api/blogsData.json')
+// app.get('/blogs', (req, res) => {
+//   res.send(blogs)
+// })
+
+//* Blogs rendering using DB
+app.get("/blogs", async (req, res) => {
+  await blogsModel
+    .find()
+    .then((blogs) => res.json(blogs))
+    .catch((err) => res.json("Error = ", err));
+});
 
 // Blogs rendered by id
 app.get("/blogs/:id", async (req, res) => {
@@ -129,7 +128,7 @@ app.post("/signup", async (req, res) => {
   }
 });
 
-app.post('/updateviews', async (req, res) => {
+app.post("/updateviews", async (req, res) => {
   // console.log("Updating Views")
   const blogId = req.body.blogId;
   // console.log("data._id: ", postId)

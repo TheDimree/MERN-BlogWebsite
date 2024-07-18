@@ -5,7 +5,7 @@ import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 
 export default function BlogEdit() {
   const { blog, blogs } = useLoaderData();
@@ -67,6 +67,7 @@ export default function BlogEdit() {
     setViewsS(views_count);
     setAuthorPicS("author1.jpg");
     setImageS(image);
+    setReadingTimeS(reading_time)
 
     getReadingTime(); // updating reading time
     // console.log("called")
@@ -357,18 +358,6 @@ export default function BlogEdit() {
             id="image"
           />
         </div>
-
-        {/* //* Uploading Pic using Multer-middleware */}
-        <div className="form-group mb-4">
-          <label htmlFor="file" className="mr-2">
-            Blog Pic
-          </label>
-          <form action="/uploadblogpic" method="POST" enctype="multipart/form-data">
-            <input type="file" name="blogPic" />
-            <button type="submit" className="btn dark-btn btn-success">Change</button>
-          </form>
-        </div>
-
         {/* //* Tags functionality pending. */}
         <div className="form-group mb-4">
           <label htmlFor="tags">Tags</label>
@@ -440,6 +429,17 @@ export default function BlogEdit() {
           Save
         </button>
       </form>
+       {/* //* Uploading Pic using Multer-middleware */}
+       <form method="POST" action="/blogimg" enctype="multipart/form-data">
+       <div className="form-group mb-4">
+          <label htmlFor="file" className="mr-2">
+            Blog Pic
+          </label>
+          
+          <input type="file" name="blogPic" />
+            <button type="submit" className="btn dark-btn btn-success">Change</button>
+        </div>
+        </form>
     </div>
   );
 }
