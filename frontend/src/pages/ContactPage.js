@@ -1,5 +1,6 @@
 import React from 'react'
-import Contact from '../components/Contact/Contact'
+// import Contact from '../components/Contact/Contact'
+import Contact from '../components/Contact/contactus.js'
 import Navbar from '../components/Navbar/Navbar'
 import Title from '../components/Title/Title'
 import Footer from '../components/Footer/Footer.js'
@@ -11,7 +12,7 @@ export default function ContactPage() {
         <div className="container">
             {/* //*Props */}
             <Title subTitle="Contact Us" title="Get in Touch"/>
-            <Contact/>
+            <Contact />
         </div>
           <Footer/>
     </div>
