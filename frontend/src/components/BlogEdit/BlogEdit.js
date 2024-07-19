@@ -36,10 +36,10 @@ export default function BlogEdit() {
   const [visibilityS, setVisibilityS] = useState("Select Visibility");
   const [authorPicS, setAuthorPicS] = useState("");
   const [viewsS, setViewsS] = useState(0);
-
-  //* pending functionality
   const [tagsS, setTagsS] = useState([]);
   const [inputTagsS, setInputTagsS] = useState('');
+
+  //* pending change image functionality
   const [imageS, setImageS] = useState(null); //* change image pending
 
   const [uniqueSortedCategories, setUniqueSortedCategories] = useState([]);
@@ -57,7 +57,7 @@ export default function BlogEdit() {
     setter(filtering);
   };
 
-  useEffect(() => {
+  useEffect(() => { //* Fetching initial data from DB
     setTitleS(title);
     setCategoryS(category);
     setAuthorS(author);
@@ -77,8 +77,6 @@ export default function BlogEdit() {
     uniqueFunction("author", setUniqueSortedAuthors);
     // getCurrentDate()
   }, []);
-
-  
 
   const handleCategorySelect = (category) => {
     setCategoryS(category);
@@ -101,21 +99,25 @@ export default function BlogEdit() {
   const handleTagInput = (event) => {
     setInputTagsS(event.target.value)
     console.log("inputTagsS: ", inputTagsS)
-    console.log("tags:", tagsS);
+    console.log("tagsS:", tagsS);
   }
 
   const handleInputKeyDown = (event) => {
-    if (event.key === "Enter" && inputTagsS.trim().length>0) {
-      const newTagsAr = inputTagsS.trim().split(" ");
+    if (event.key === "Enter" && inputTagsS.length>0 && inputTagsS !== ' ') {
+      event.preventDefault() //! When Enter is pressed, event.preventDefault() prevents the default form submission behavior, allowing you to handle adding tags in a controlled manner.   
+      // const newTagsAr = inputTagsS.trim().split(" ");
+      const newTagsAr = inputTagsS.split(" ");
       setTagsS(tagsS.concat(newTagsAr));
       setInputTagsS('')
+      console.log("inputTagsS keyDown: ", inputTagsS)
+      console.log("tagsS: keyDown should be empty", tagsS);
       // event.target.value = '';
     }
   };
 
-  const handleTagDelete = (index) => {
-    console.log("deleting tags")
-    const updatedTags = tagsS.filter((_, i) => i !== index);
+  const handleTagDelete = (value) => {
+    console.log("deleting tags", value)
+    const updatedTags = tagsS.filter((v) => v !== value);
     setTagsS(updatedTags);
     console.log("Updated tags: ", tagsS)
   };
@@ -153,6 +155,7 @@ export default function BlogEdit() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    console.log('data submitted.')
     getReadingTime();
     const formData = {      //* creating an object from all useStates
       id: _id,
@@ -358,6 +361,18 @@ export default function BlogEdit() {
             id="image"
           />
         </div>
+
+        {/* //* Uploading Pic using Multer-middleware */}
+       {/* <form method="POST" action="/blogimg" enctype="multipart/form-data">
+       <div className="form-group mb-4">
+          <label htmlFor="file" className="mr-2">
+            Blog Pic
+          </label>
+          <input type="file" name="blogPic" />
+          <button type="submit" className="btn dark-btn btn-success">Change</button>
+        </div>
+        </form> */}
+        
         {/* //* Tags functionality pending. */}
         <div className="form-group mb-4">
           <label htmlFor="tags">Tags</label>
@@ -371,15 +386,18 @@ export default function BlogEdit() {
             onKeyDown={handleInputKeyDown}
             placeholder="Enter tags separated by space and press Enter"
           />
+          {/* {tagsS.map((obj, index)=> (
+            <span key={index}>{obj}</span>
+            ))} */}
           <div className="mt-2">
-            {tagsS.map((tag, index) => (
+            {tagsS.map((value, index) => (
               <span
                 key={index}
                 className="inline-block px-2 py-1 m-1 bg-gray-200 rounded text-sm"
               >
-                {tags}
+                {value}
                 <button
-                  onClick={() => handleTagDelete(index)}
+                  onClick={()=> handleTagDelete(value)}
                   className="ml-2 text-red-500"
                 >
                   X
@@ -413,7 +431,7 @@ export default function BlogEdit() {
             <span className="mx-2">
               {readingTimeS < 60
                 ? `${readingTimeS} minutes`
-                : `{${readingTimeS}/ 60} hours`}
+                : `${Math.floor(readingTimeS/60)} hours`}
             </span>
             {/* <button
               type="button"
@@ -429,17 +447,6 @@ export default function BlogEdit() {
           Save
         </button>
       </form>
-       {/* //* Uploading Pic using Multer-middleware */}
-       <form method="POST" action="/blogimg" enctype="multipart/form-data">
-       <div className="form-group mb-4">
-          <label htmlFor="file" className="mr-2">
-            Blog Pic
-          </label>
-          
-          <input type="file" name="blogPic" />
-            <button type="submit" className="btn dark-btn btn-success">Change</button>
-        </div>
-        </form>
     </div>
   );
 }

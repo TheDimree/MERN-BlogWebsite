@@ -2,20 +2,27 @@ import React, { useEffect, useState } from "react";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { useLoaderData } from "react-router-dom";
+import DatePicker from "react-datepicker";
+
 
 export default function BlogAdd() {
   const [title, setTitle] = useState("");
-  // const [pic, setPic] = useState(null);
   const [category, setCategory] = useState("Select Category");
   const [author, setAuthor] = useState("Select Author");
-  const [date, setDate] = useState('');
+  const [selectedDate, setSelectedDate] = useState(null);
   const [readingTime, setReadingTime] = useState(0);
   const [content, setContent] = useState("");
+  const [authorPic, setAuthorPic] = useState("author1.jpg");
   const [tags, setTags] = useState([]);
-  const [inputValue, setInputValue] = useState('');
+  const [inputTags, setInputTags] = useState('');
   const [visibility, setVisibility] = useState('Select Visibility');
-  // const [views, setViews] = useState(0);
-  const [formData, setFormData] = useState({}) 
+  const [views, setViews] = useState(0);
+
+  // const [formData, setFormData] = useState({}) 
+
+  //! Pending 
+  const [pic, setPic] = useState('https://techcrunch.com/wp-content/uploads/2015/02/shutterstock_128451140.jpg?w=430&h=230&crop=1');
+
 
   const [uniqueSortedCategories, setUniqueSortedCategories] = useState([]);
   const [uniqueSortedAuthors, setUniqueSortedAuthors] = useState([]);
@@ -33,9 +40,9 @@ export default function BlogAdd() {
   useEffect(()=> {
     uniqueFunction("category", setUniqueSortedCategories)
     uniqueFunction('author', setUniqueSortedAuthors)
-    getCurrentDate()
+    // getCurrentDate()
     getReadingTime();
-  },[blogs]);
+  },[category, author, content]);
 
   const handleCategorySelect = (category) => {
     setCategory(category);
@@ -51,41 +58,52 @@ export default function BlogAdd() {
   const handleTitle = (event) => {
     const getTitle = event.target.value;
     setTitle(getTitle);
-    console.log(title)
+    // console.log(title)
   }
   
-  const handleInputChange = (event) => {
-    setInputValue(event.target.value);
-  };
+  //* Tags functionality
+  const handleTagInput = (event) => {
+    setInputTags(event.target.value)
+    // console.log("inputTags: ", inputTags)
+    // console.log("tags:", tags);
+  }
 
   const handleInputKeyDown = (event) => {
-    if (event.key === 'Enter' && inputValue.trim()) {
-      setTags([...tags, inputValue.trim()]);
-      setInputValue('');
+    if (event.key === "Enter" && inputTags.length>0 && inputTags !== ' ') {
+      event.preventDefault() //! When Enter is pressed, event.preventDefault() prevents the default form submission behavior, allowing you to handle adding tags in a controlled manner.   
+      // const newTagsAr = inputTags.trim().split(" ");
+      const newTagsAr = inputTags.split(" ");
+      setTags(tags.concat(newTagsAr));
+      setInputTags('')
+      // console.log("inputTags keyDown: ", inputTags)
+      // console.log("tagsS: keyDown should be empty", tags);
+      // event.target.value = '';
     }
   };
 
-  const handleTagDelete = (index) => {
-    setTags(tags.filter((_, i) => i !== index));
+  const handleTagDelete = (value) => {
+    // console.log("deleting tags", value)
+    const updatedTags = tags.filter((v) => v !== value);
+    setTags(updatedTags);
+    // console.log("Updated tags: ", tags)
   };
 
   const handleContent = (event) => {
     const getContent = event.target.value;
     setContent(getContent);
-    console.log(content);
+    // console.log(content);
   }
 
   const clearFormData = () => { 
     setTitle("");
-    // setPic(null);
-    // setDate("");
+    setPic('');
     setReadingTime(0);
     setContent("");
-    // setTags([]);
+    setTags([]);
     setCategory("Select Category");
     setAuthor("Select Author");
     setVisibility("Select Visibility");
-    // setViews(0);
+    setViews(0);
   };
 
   function getCurrentDate() {
@@ -93,27 +111,47 @@ export default function BlogAdd() {
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
     const year = date.getFullYear(); // Full year
-    setDate(`${day}/${month}/${year}`);
+    
+    const formattedDate = `${day}/${month}/${year}`;
+    const today = Date.parse(`${day}/${month}/${year}`);
+    // console.log(today, "datee")
+    // const today = new Date(formattedDate)
+    // console.log("type:", typeof(today))
+    // setSelectedDate(today);
+    // console.log(`${day}/${month}/${year}`)
   }
+
   const getReadingTime = () => {
     const getTime = (60/300) * content.split(" ").filter((element) => {return element.length!==0}).length
     setReadingTime(getTime);
   }
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+    // console.log('typeofdate: ', typeof(date))
+  };
 
-    if (!title || !category  || !author  || !date  || !readingTime  || !content  || !visibility) {
-      setFormData({ //* creating an object from all useStates
+  const handleSubmit = async (event) => {
+    event.preventDefault();    
+
+    if (title==='' || category==='Select Category'  || author==='Select Author'  || !selectedDate  || content===''  || visibility==='Select Visibility' || tags.length===0) {
+      alert("Please fill all fields");
+      return;
+    }
+      const formData = { //* creating an object from all useStates
         title: title, 
         category: category, 
         author: author, 
-        published_date: date, 
+        published_date: selectedDate, 
         reading_time: readingTime, 
         content: content, 
         visibility: visibility,
-      });
+        authorPic: authorPic,
+        tags: tags,
+        image: 'https://techcrunch.com/wp-content/uploads/2015/02/shutterstock_128451140.jpg?w=430&h=230&crop=1',
+        views_count: views
+      };
+      console.log("FormData to be send:", formData);
 
       try {
         const response = await fetch("http://localhost:8008/addblog", {
@@ -124,19 +162,15 @@ export default function BlogAdd() {
           },
         });
         const data = await response.json();
+        console.log("Response from Backend: ", data);
         clearFormData();
-        console.log(data);
       } catch (error) {
         console.error("Error:", error);
       }
-    }
   };
 
   return (
     <div className="w-1/2   mx-auto my-12 container mb-40">
-      {tags.map((obj, i) => 
-      tags
-      )}
       <form method="POST" action="/addblog" onSubmit={handleSubmit}>
         <div className="form-group mb-4">
           <label htmlFor="title">Title</label>
@@ -152,6 +186,24 @@ export default function BlogAdd() {
             rows="3"
             onChange={handleContent}
           ></textarea>
+        </div>
+
+        <div className="form-group mb-4">
+          <label
+            htmlFor="date"
+            className="block text-gray-700 font-medium mb-2"
+          >
+            Published Date
+          </label>
+          <DatePicker
+            id="date"
+            name="date"
+            selected={selectedDate}
+            onChange={handleDateChange}
+            dateFormat="dd/MM/yyyy"
+            className="form-control mb-2 p-2 border border-gray-300 rounded w-full"
+            calendarClassName="react-datepicker"
+          />
         </div>
 
         <div className="form-group mb-4">
@@ -246,16 +298,74 @@ export default function BlogAdd() {
             </MenuItems>
           </Menu>
         </div>
+        
+        {/* //* Tags functionality. */}
         <div className="form-group mb-4">
           <label htmlFor="tags">Tags</label>
-          <input type="text" className="form-control" value={inputValue} id="tags" name="tags"  onChange={handleInputChange} onKeyDown={handleInputKeyDown} placeholder="Enter tags and press Enter" />
-          <div>Tags
-            {tags.map((tag, index) => (
-            <span key={index} style={{ display: 'inline-block', padding: '5px', margin: '5px', background: '#e0e0e0', borderRadius: '3px' }}>
-              {tag}
-            <button onClick={() => handleTagDelete(index)} style={{ marginLeft: '5px' }}>x</button>
-            </span>
+          <input
+            type="text"
+            className="p-2 border border-gray-300 rounded w-full"
+            value={inputTags}
+            id="tags"
+            name="tags"
+            onChange={handleTagInput}
+            onKeyDown={handleInputKeyDown}
+            placeholder="Enter tags separated by space and press Enter"
+          />
+          {/* {tagsS.map((obj, index)=> (
+            <span key={index}>{obj}</span>
+            ))} */}
+          <div className="mt-2">
+            {tags.map((value, index) => (
+              <span
+                key={index}
+                className="inline-block px-2 py-1 m-1 bg-gray-200 rounded text-sm"
+              >
+                {value}
+                <button
+                  onClick={()=> handleTagDelete(value)}
+                  className="ml-2 text-red-500"
+                >
+                  X
+                </button>
+              </span>
             ))}
+          </div>
+        </div>
+
+        <div className="form-group mb-4">
+          <label htmlFor="views">Views</label>
+          <input
+            type="number"
+            className="form-control"
+            value={views}
+            id="views"
+            name="views"
+            onChange={(event) => {
+              setViews(event.target.value);
+            }}
+          />
+        </div>
+        <div className="form-group mb-4">
+          <label
+            htmlFor="reading_time"
+            className="block text-gray-700 font-medium mb-2"
+          >
+            Reading Time
+          </label>
+          <div className="flex items-center mb-2">
+            <span className="mx-2">
+              {readingTime < 60
+                ? `${readingTime} minutes`
+                : `${Math.floor(readingTime/60)} hours`}
+            </span>
+            {/* <button
+              type="button"
+              className="p-2 border border-gray-300 rounded bg-blue-500 text-white font-medium"
+              onClick={()=> getReadingTime()}
+            >
+              Update
+            </button> */}
           </div>
         </div>
 

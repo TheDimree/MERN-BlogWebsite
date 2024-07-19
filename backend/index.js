@@ -233,23 +233,38 @@ app.post('/editblog', async (req, res) => {
 })
 
 app.post('/addblog', async (req, res) => {
-  const views_count = 0
-  const { title, category, author, published_date, reading_time, content, visibility } = req.body;  //Destructuring
-  // image, tags, views_count
-  if (!title || !category  || !author || !published_date || !reading_time  || !content  || !visibility) {
-    return res.status(400).send({ error: 'All fields are required' });
+
+  const { title, category, author, published_date, reading_time, image, content, visibility, authorPic, tags, views_count } = req.body;  //Destructuring
+  
+  const formData = { //* creating an object from all useStates
+    title: title, 
+    category: category, 
+    author: author, 
+    published_date: published_date, 
+    reading_time: reading_time, 
+    content: content, 
+    visibility: visibility,
+    authorPic: authorPic,
+    tags: tags,
+    image: image,
+    views_count: views_count
+  };
+  console.log("formData: ", formData);
+
+  if (title==='' || category==='Select Category'  || author==='Select Author'  || !published_date  || content===''  || visibility==='Select Visibility' || tags.length===0) {
+    return res.status(400).send({ msg: 'All fields are required' });
   }
-  const data = new signupModel({ title, category, author, published_date, reading_time, content, visibility, views_count });
+  
+  const data = new blogsModel({ title, category, author, published_date, reading_time, image, content, visibility, authorPic, tags, views_count });
 
   try {
     const doc = await data.save();
     console.log("Data saved successfully: ", doc);
-    res.status(201).send(doc);
+    res.status(201).send({ msg: "Data saved successfully." });
   } catch (error) {
     console.error("Error saving data: ", error);
-    res.status(400).send({ message: error.message });
+    res.status(400).send({ msg: error.message });
   }
-  // console.log(blog)
 })
 
 

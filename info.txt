@@ -22,3 +22,13 @@ add post.
 ======
 add blog 
 edit me info leke update.
+
+
+==========
+18 July 2024
+1. searchbar
+2. addblog
+3. password encrypt: https://www.geeksforgeeks.org/node-js-password-hashing-crypto-module/
+4. edit blog ko set
+5. token authentication : https://www.npmjs.com/package/jsonwebtoken 
+https://www.geeksforgeeks.org/jwt-authentication-with-node-js/
