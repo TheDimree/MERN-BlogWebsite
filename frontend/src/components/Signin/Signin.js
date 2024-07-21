@@ -37,8 +37,8 @@ export default function Signin() {
 
     const checkLogin = async (event) =>  {
       event.preventDefault();
-    if ( username !== "" && password !== "") {
-      const formData = {  //* creating an object from all useStates
+      if ( username !== "" && password !== "") {
+        const formData = {  //* creating an object from all useStates
         username: username,
         password: password,
       };
@@ -51,14 +51,14 @@ export default function Signin() {
             "Content-Type": "application/json",
           },
         });
-        const login = await response.json();
-        console.log("Login:", login)
-        if (login.success) {
+        const msg = await response.json();
+        console.log("Login:", msg)
+        if (msg.success) {
           // Perform actions for successful login
-          alert(login.message);
+          alert(msg.msg);
         } else {
           // Perform actions for failed login
-          alert(login.message);
+          alert(msg.msg);
         }
         clearFormData();
       } 

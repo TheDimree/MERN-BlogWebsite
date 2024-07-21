@@ -53,7 +53,7 @@ export default function Blogs() {
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
     setCurrentPage(1);
-    console.log("Triggered and Category selected: ", selectedCategory)
+    // console.log("Triggered and Category selected: ", selectedCategory)
     setActiveCategory(category);
   }
 

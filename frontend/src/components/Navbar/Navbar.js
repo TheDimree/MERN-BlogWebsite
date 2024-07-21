@@ -1,4 +1,5 @@
-import React from "react";
+import { React, useState, useEffect } from "react";
+import axios from "axios";
 
 import { Fragment } from "react";
 import {
@@ -24,10 +25,31 @@ function classNames(...classes) {
 }
 
 export default function Navbar() {
+  const [blogs, setBlogs] = useState([]);
+  const [search, setSearch] = useState("");
 
-  // const handleSearch = (e) => {
-  //   e.target.value()
-  // }
+  useEffect(() => {
+    //* Fetching from Database
+    async function fetchData() {
+      try {
+        let url = `http://localhost:8008/blogs`;
+        if (search) {
+          url += `?search=${search}`;
+        }
+        const response = await axios.get(url);
+        setBlogs(response.data);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    fetchData();
+  }, [search]);
+
+  const handleSearch = (event) => {
+    setSearch(event.target.value);
+  };
+
   return (
     <Disclosure as="nav" className="bg-gray-800">
       {({ open }) => (
@@ -48,11 +70,13 @@ export default function Navbar() {
               </div>
               <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                 <div className="flex flex-shrink-0 items-center">
-                  <Link to='/'><img
-                    className="h-8 w-auto"
-                    src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-                    alt="Your Company"
-                  /></Link>
+                  <Link to="/">
+                    <img
+                      className="h-8 w-auto"
+                      src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
+                      alt="Your Company"
+                    />
+                  </Link>
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
                   <div className="flex space-x-4">
@@ -72,7 +96,7 @@ export default function Navbar() {
                       </Link>
                     ))}
                   </div>
-                </div>                
+                </div>
               </div>
               <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                 {/* <button
@@ -85,30 +109,37 @@ export default function Navbar() {
                 </button> */}
 
                 {/* Search */}
-                {/* <form className="d-flex" role="search">
+                {/* <div className="container mx-auto p-4 bg-slate-50">
                   <input
-                    className="form-control me-2"
-                    type="search"
-                    placeholder="Search"
-                    aria-label="Search"
+                    type="text"
+                    placeholder="Search blogs..."
+                    value={search}
+                    onChange={handleSearch}
+                    className="w-full p-2 mb-4 border border-gray-300 rounded-lg"
                   />
-                  <Link to="/search"><button className="btn btn-outline-success" type="submit">
-                    Search
-                  </button></Link>
-                </form> */}
-              
-              
-              {/* Signin and Signup Section */}
-              <div className="flex justify-end mr-3">
-                <Link to='/signin'><div className="text-white mr-2 ">
-                  Login
-                </div></Link>                
-            
-                {/* <Link to='/signup'><div className="text-white">
+                  <ul className="space-y-4">
+                    {blogs.map((blog) => (
+                      <li
+                        key={blog._id}
+                        className="p-4 border border-gray-300 rounded-lg shadow-md"
+                      >
+                        <h2 className="text-xl font-semibold">{blog.title}</h2>
+                        <p className="text-gray-700">{blog.content}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </div> */}
+
+                {/* Signin and Signup Section */}
+                <div className="flex justify-end mr-3">
+                  <Link to="/signin">
+                    <div className="text-white mr-2 ">Login</div>
+                  </Link>
+
+                  {/* <Link to='/signup'><div className="text-white">
                   Signup
                 </div></Link> */}
-              </div>
-
+                </div>
 
                 {/* Profile dropdown */}
                 <Menu as="div" className="relative ml-3">

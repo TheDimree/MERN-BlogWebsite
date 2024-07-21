@@ -2,12 +2,12 @@ const express = require("express");
 const cors = require("cors");
 const { connection } = require("./config.js"); //Destructuring
 const { feedbackModel } = require("./collections/feedback.js"); //Destructuring
-const { pictureModel } = require("./collections/blogPic.js"); //Destructuring
+// const { pictureModel } = require("./collections/blogPic.js"); //Destructuring
 const { blogsModel } = require("./collections/blogs.js"); //Destructuring
 const { signupModel } = require("./collections/signup.js"); //Destructuring
 // const blogs = require('./api/blogsData.json')
 const multer  = require('multer')
-// const path = require('path')
+const bcrypt = require('bcrypt');
 
 
 const app = express();
@@ -17,7 +17,6 @@ const port = 8008;
 app.use(cors()); // cross platform
 app.use(express.json()); // To parse JSON bodies
 app.use(express.urlencoded({ extended: false })); // To parse URL-encoded bodies
-// app.use(express.static(path.join(__dirname, 'uploads')))  //serving static files.
 
 //* MongoDB connected successfully
 connection();
@@ -53,11 +52,11 @@ app.post("/blogimg", upload.single('blogPic'), (req, res) => {
   //   const savedPicture = await pictureModel.save();
   //   res.status(200).json(savedPicture);
   // } catch (error) {
-  //   res.status(400).json({ message: error.message });
+  //   res.status(400).json({ msg: error.message });
   // }
   } catch (error) {
     console.log("Error uploading the file", error)
-    res.status(400).json({ message: error.message });
+    res.status(400).json({ msg: error.message });
   }
 });
 
@@ -68,10 +67,30 @@ app.post("/blogimg", upload.single('blogPic'), (req, res) => {
 
 //* Blogs rendering using DB
 app.get("/blogs", async (req, res) => {
-  await blogsModel
-    .find()
-    .then((blogs) => res.json(blogs))
-    .catch((err) => res.json("Error = ", err));
+  const { search } = req.query;
+
+  try {
+    let blogs;
+    if (search) {
+      blogs = await blogsModel.find({
+        $or: [
+          { title: new RegExp(search, 'i') },
+          { content: new RegExp(search, 'i') }
+        ]
+      });
+    } else {
+      blogs = await blogsModel.find();
+    }
+    res.status(200).json(blogs);
+  } catch (error) {
+    console.error('Error fetching blogs:', error);
+    res.status(500).json({ msg: 'Error fetching blogs' });
+  }
+
+  // await blogsModel
+  //   .find()
+  //   .then((blogs) => res.json(blogs))
+  //   .catch((err) => res.json("Error = ", err));
 });
 
 // Blogs rendered by id
@@ -80,12 +99,12 @@ app.get("/blogs/:id", async (req, res) => {
   try {
     const blog = await blogsModel.findById(id);
     if (!blog) {
-      return res.status(404).json({ message: "Blog not found" });
+      return res.status(404).json({ msg: "Blog not found" });
     }
     res.json(blog);
     // res.send(blog);
   } catch (err) {
-    res.status(500).json({ message: "Error = " + err.message });
+    res.status(500).json({ msg: "Error = " + err.message });
   }
   
   //* Using Json file.
@@ -113,18 +132,23 @@ app.post("/contactus", async (req, res) => {
 app.post("/signup", async (req, res) => {
   // console.log("Signup");
   const { name, username, email, phone, password } = req.body;  //Destructuring
+
   if (!name || !username || !email || !phone || !password) {
     return res.status(400).send({ error: 'All fields are required' });
   }
-  const data = new signupModel({ name, username, email, phone, password });
+
+  const hashedPassword = await bcrypt.hash(password, 10); // Adjust the saltRounds as needed
+  console.log("hashedPassword: ", hashedPassword);
+
+  const data = new signupModel({ name, username, email, phone, password: hashedPassword });
 
   try {
     const doc = await data.save();
     // console.log("Data saved successfully: ", doc);
-    res.status(201).send(doc);
+    res.status(201).send({msg: "User registered successfully."});
   } catch (error) {
     // console.error("Error saving data: ", error);
-    res.status(400).send({ message: error.message });
+    res.status(400).send({ msg: error.message });
   }
 });
 
@@ -142,7 +166,7 @@ app.post("/updateviews", async (req, res) => {
     blog.views_count++;
     await blog.save();
 
-    res.json({ message: 'Views count increased successfully' });
+    res.json({ msg: 'Views count increased successfully' });
   } catch (error) {
     console.error('Error increasing views count:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -154,26 +178,30 @@ app.post('/signin', async (req, res) => {
   const { username, password } = req.body;
   // console.log(username, "is username");
   try {
-    const blog = await signupModel.find({ username: username });
+    const user = await signupModel.find({ username: username });
 
-    if (!blog) {
+    if (!user) {
       console.log("No user found.")
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ msg: 'User not found' });
     }
-    console.log("blog:", blog);
+    console.log("user:", user);
 
-    if (blog[0].password!== password) {
+    //checking password to login.
+    const isPasswordValid = await bcrypt.compare(password, user[0].password);
+
+    // if (user[0].password!== password) {  //normal password match
+    if (!isPasswordValid) {
       // console.log("Password does not match.")
-      res.json({ success: false, message: 'Invalid credentials.' });
+      res.json({ success: false, msg: 'Invalid credentials.' });
     }
     else {
       // console.log("Logged in")
-      res.json({ success: true, message: 'Login successful!' });
+      res.json({ success: true, msg: 'Login successful!' });
     }
   } 
   catch (error) {
     // console.error('Error in Signin: ', error);
-    res.status(500).json({ message: 'User not found. Please Signup' });
+    res.status(500).json({ msg: 'User not found. Please Signup' });
   }
 })
 
@@ -226,9 +254,9 @@ app.post('/editblog', async (req, res) => {
     blog.views_count = views_count
 
     await blog.save();
-    res.json({ message: 'Blog updated successfully' });
+    res.json({ msg: 'Blog updated successfully' });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({ msg: error.message });
   }
 })
 

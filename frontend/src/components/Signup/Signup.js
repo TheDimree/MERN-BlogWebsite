@@ -121,7 +121,8 @@ export default function Signup() {
             "Content-Type": "application/json",
           },
         });
-        const data = await response.json();
+        const msg = await response.json();
+        console.log("Response from backend:", msg)
         clearFormData();
       } 
       catch (error) {
