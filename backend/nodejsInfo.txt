@@ -1,0 +1,4 @@
+Install all these dependencies:
+npm install bcrypt => const bcrypt = require('bcrypt');
+npm install jsonwebtoken => const jwt = require('jsonwebtoken');
+npm install cookie-parser=> const cookieParser = require('cookie-parser')

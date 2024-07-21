@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function Signin() {
-    const [username, setUsername] = useState('')
+    const [username, setUsername] = useState("")
     const [password, setPassword] = useState('');
     const [err, setErr] = useState(false);
 
@@ -51,14 +51,14 @@ export default function Signin() {
             "Content-Type": "application/json",
           },
         });
-        const msg = await response.json();
-        console.log("Login:", msg)
-        if (msg.success) {
+        const getRes = await response.json();
+        console.log("Login:", getRes)
+        if (getRes.success) {
           // Perform actions for successful login
-          alert(msg.msg);
+          alert(getRes.msg);
         } else {
           // Perform actions for failed login
-          alert(msg.msg);
+          alert(getRes.msg);
         }
         clearFormData();
       } 
