@@ -11,6 +11,9 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const secretKey = "dunhill"; //jw token key.
 const cookieParser = require('cookie-parser') //middleware
+const nodemailer = require("nodemailer");
+// require("dotenv").config();
+
 
 
 const app = express();
@@ -20,7 +23,7 @@ const port = 8008;
 app.use(cors())  // cross platform
 app.use(express.json()); // To parse JSON bodies
 app.use(express.urlencoded({ extended: false })); // To parse URL-encoded bodies
-app.use(cookieParser()) 
+app.use(cookieParser())
 
 //* MongoDB connected successfully
 connection();
@@ -44,25 +47,25 @@ const myStorage = multer.diskStorage({
 
 const upload = multer({ storage: myStorage }); // OR  upload = multer({ myStorage })
 
-app.post("/blogimg", upload.single("blogPic"), (req, res) => {
-  try {
-    console.log(req.file);
-    console.log("Uploaded pic.");
-    // const picture = new Picture({
-    //   title: req.body.title,
-    //   imagePath: req.file.path
-    // });
-    // try {
-    //   const savedPicture = await pictureModel.save();
-    //   res.status(202).json(savedPicture);
-    // } catch (error) {
-    //   res.status(404).json({ msg: error.message });
-    // }
-  } catch (error) {
-    console.log("Error uploading the file", error);
-    res.status(404).json({ msg: error.message });
-  }
-});
+// app.post("/blogimg", upload.single("blogPic"), (req, res) => {
+//   try {
+//     console.log(req.file);
+//     console.log("Uploaded pic.");
+//     // const picture = new Picture({
+//     //   title: req.body.title,
+//     //   imagePath: req.file.path
+//     // });
+//     // try {
+//     //   const savedPicture = await pictureModel.save();
+//     //   res.status(202).json(savedPicture);
+//     // } catch (error) {
+//     //   res.status(404).json({ msg: error.message });
+//     // }
+//   } catch (error) {
+//     console.log("Error uploading the file", error);
+//     res.status(404).json({ msg: error.message });
+//   }
+// });
 
 //* Blogs rendered using json file: const blogs = require('./api/blogsData.json')
 // app.get('/blogs', (req, res) => {
@@ -72,7 +75,7 @@ app.post("/blogimg", upload.single("blogPic"), (req, res) => {
 //* Blogs rendering using DB
 app.get("/blogs", async (req, res) => {
   const { search } = req.query;
-
+  // console.log("search:", search);
   try {
     let blogs;
     if (search) {
@@ -82,6 +85,7 @@ app.get("/blogs", async (req, res) => {
           { content: new RegExp(search, "i") },
         ],
       });
+      console.log("blogs:", blogs);
     } else {
       blogs = await blogsModel.find();
     }
@@ -164,16 +168,16 @@ app.post("/signup", async (req, res) => {
 
   //* Checking if the user already exist with the same username.
   const existingUser = await signupModel.find({ username });
-  
-  if(existingUser) {
+
+  if (existingUser) {
     return res.status(404).json({ msg: "Username already exists" });
   }
 
-    if (!user) {
-      console.log("No user found.");
-      return res.status(404).json({ msg: "User not found" });
-    }
-  
+  if (!user) {
+    console.log("No user found.");
+    return res.status(404).json({ msg: "User not found" });
+  }
+
 
   //* Hashing password
   const hashedPassword = await bcrypt.hash(password, 10); // Adjust the saltRounds as needed
@@ -238,27 +242,27 @@ app.post("/signin", async (req, res) => {
 
     let token;
 
-      //Creating jwt token
-      const tokenPayload = {
-        id: user._id,
-        username: user.username,
-      };
-      
-      token = jwt.sign(tokenPayload, secretKey, { expiresIn: "1h" });  //JWT Token Creation.
-      console.log("token: ", token);
+    //Creating jwt token
+    const tokenPayload = {
+      id: user._id,
+      username: user.username,
+    };
 
-      //cookie section
-      const cookieOptions = {
-        expires: new Date(Date.now() + 3 * 24 * 60  * 60 * 1000),  // 3 days => day * hour * minute * seconds * milliseconds
-        httpOnly: true, // Prevents client-side JavaScript from accessing the cookie.
-        secure: process.env.NODE_ENV === 'production', // Set to true if you're using HTTPS
-        sameSite: 'strict', // or 'lax' depending on your requirements
-      };
+    token = jwt.sign(tokenPayload, secretKey, { expiresIn: "1h" });  //JWT Token Creation.
+    console.log("token: ", token);
 
-      // Send the response with the token in a cookie
-      res.status(202).cookie("token", token, cookieOptions).json({
-        success: true, data: { id: user._id, username: user.username, token: token }, msg: "Login successfully.",
-      })
+    //cookie section
+    const cookieOptions = {
+      expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),  // 3 days => day * hour * minute * seconds * milliseconds
+      httpOnly: true, // Prevents client-side JavaScript from accessing the cookie.
+      secure: process.env.NODE_ENV === 'production', // Set to true if you're using HTTPS
+      sameSite: 'strict', // or 'lax' depending on your requirements
+    };
+
+    // Send the response with the token in a cookie
+    res.status(202).cookie("token", token, cookieOptions).json({
+      success: true, data: { id: user._id, username: user.username, token: token }, msg: "Login successfully.",
+    })
   } catch (error) {
     res.status(505).json({ success: false, msg: `Error occurred: ${error}` });
   }
@@ -266,7 +270,7 @@ app.post("/signin", async (req, res) => {
 
 app.get("/accessResource", (req, res) => {
   const token = req.headers.authorization.split(" ")[1];
-  
+
   //Authorization: 'Bearer TOKEN'
   if (!token) {
     res.status(202).json({
@@ -275,16 +279,16 @@ app.get("/accessResource", (req, res) => {
     });
   }
   //Decoding the token
-  try{
-  const decodedToken = jwt.verify(token, secretKey);
-  res.status(202).json({
-    success: true,
-    data: {
-      id: decodedToken.id,
-      username: decodedToken.username,
-    },
-  });
-  } catch(err) {
+  try {
+    const decodedToken = jwt.verify(token, secretKey);
+    res.status(202).json({
+      success: true,
+      data: {
+        id: decodedToken.id,
+        username: decodedToken.username,
+      },
+    });
+  } catch (err) {
     res.status(404).json({
       success: false,
       msg: "Error! Token is invalid.",
@@ -347,6 +351,21 @@ app.post("/editblog", async (req, res) => {
     res.json({ msg: "Blog updated successfully" });
   } catch (error) {
     res.status(404).json({ msg: error.message });
+  }
+});
+
+app.delete("/deleteblog/:id", async (req, res) => {
+  const { id } = req.params
+  try {
+    const result = await blogsModel.findByIdAndDelete(id)
+    if (result) {
+      res.status(202).json({ success: true, msg: 'Blog post deleted successfully' });
+    } else {
+      res.status(404).json({ success: false, msg: 'Blog post not found' });
+    }
+  } catch (error) {
+    console.error('Error deleting blog post:', error);
+    res.status(500).json({ success: false, msg: 'Server error' });
   }
 });
 
@@ -415,6 +434,68 @@ app.post("/addblog", async (req, res) => {
     console.error("Error saving data: ", error);
     res.status(404).send({ msg: error.message });
   }
+});
+
+function sendEmail({ recipient_email, OTP }) {
+  return new Promise((resolve, reject) => {
+    var transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.MY_EMAIL,
+        pass: process.env.MY_PASSWORD,
+      },
+    });
+
+    const mail_configs = {
+      from: process.env.MY_EMAIL,
+      to: recipient_email,
+      subject: "KODING 101 PASSWORD RECOVERY",
+      html: `<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>CodePen - OTP Email Template</title>
+  
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<div style="font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2">
+  <div style="margin:50px auto;width:70%;padding:20px 0">
+    <div style="border-bottom:1px solid #eee">
+      <a href="" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">Koding 101</a>
+    </div>
+    <p style="font-size:1.1em">Hi,</p>
+    <p>Thank you for choosing Koding 101. Use the following OTP to complete your Password Recovery Procedure. OTP is valid for 5 minutes</p>
+    <h2 style="background: #00466a;margin: 0 auto;width: max-content;padding: 0 10px;color: #fff;border-radius: 4px;">${OTP}</h2>
+    <p style="font-size:0.9em;">Regards,<br />Koding 101</p>
+    <hr style="border:none;border-top:1px solid #eee" />
+    <div style="float:right;padding:8px 0;color:#aaa;font-size:0.8em;line-height:1;font-weight:300">
+      <p>Koding 101 Inc</p>
+      <p>1600 Amphitheatre Parkway</p>
+      <p>California</p>
+    </div>
+  </div>
+</div>
+<!-- partial -->
+  
+</body>
+</html>`,
+    };
+    transporter.sendMail(mail_configs, function (error, info) {
+      if (error) {
+        console.log(error);
+        return reject({ message: `An error has occured` });
+      }
+      return resolve({ message: "Email sent succesfuly" });
+    });
+  });
+}
+
+app.post("/send_recovery_email", (req, res) => {
+  sendEmail(req.body)
+    .then((response) => res.send(response.message))
+    .catch((error) => res.status(500).send(error.message));
 });
 
 app.listen(port, () => {

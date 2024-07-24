@@ -74,11 +74,6 @@ const router = createBrowserRouter([
     loader: blogEditLoader,
   },
   {
-    path: "/blogdelete/:id",
-    element: <BlogEditPage />,
-    loader: ({params}) => fetch(`http://localhost:8008/blogs/${params.id}`) 
-  },
-  {
     path: "/newblog",
     element: <BlogAddPage />,
     loader: () => fetch(`http://localhost:8008/blogs`) 

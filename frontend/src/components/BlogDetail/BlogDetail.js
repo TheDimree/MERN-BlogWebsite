@@ -57,12 +57,12 @@ export default function BlogDetail() {
           <p className='mb-3 text-gray-600  text-left'><FaClock className='inline-flex item-center mr-2'/>{reading_time}</p>
           <p className='mb-3 text-gray-600  text-left'><img className='inline-flex item-center mr-2' alt= "views icon" src={view_count_icon} width='18px'/>{views_count+1}</p>
           <p className='text-left text-base text-gray-500 mb-6'>{content}</p>
-          <div className='text-left text-base text-gray-500 mb-6'> 
+          {/* <div className='text-left text-base text-gray-500 mb-6'> 
             <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Impedit ab, provident asperiores distinctio, repellendus animi, placeat aperiam accusamus voluptate fuga architecto explicabo veritatis suscipit. Quis facere ab officia, omnis, porro ullam quasi maiores deserunt excepturi nihil alias delectus quisquam nobis tempora nesciunt possimus pariatur asperiores. Labore doloremque accusantium natus voluptas.</p><br></br>
             <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Impedit ab, provident asperiores distinctio, repellendus animi, placeat aperiam accusamus voluptate fuga architecto explicabo veritatis suscipit. Quis facere ab officia, omnis, porro ullam quasi maiores deserunt excepturi nihil alias delectus quisquam nobis tempora nesciunt possimus pariatur asperiores. Labore doloremque accusantium natus voluptas.</p><br></br>
             <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Impedit ab, provident asperiores distinctio, repellendus animi, placeat aperiam accusamus voluptate fuga architecto explicabo veritatis suscipit. Quis facere ab officia, omnis, porro ullam quasi maiores deserunt excepturi nihil alias delectus quisquam nobis tempora nesciunt possimus pariatur asperiores. Labore doloremque accusantium natus voluptas.</p><br></br>
             <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Impedit ab, provident asperiores distinctio, repellendus animi, placeat aperiam accusamus voluptate fuga architecto explicabo veritatis suscipit. Quis facere ab officia, omnis, porro ullam quasi maiores deserunt excepturi nihil alias delectus quisquam nobis tempora nesciunt possimus pariatur asperiores. Labore doloremque accusantium natus voluptas.</p><br></br>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

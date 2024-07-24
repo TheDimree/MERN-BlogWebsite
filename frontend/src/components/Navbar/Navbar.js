@@ -27,6 +27,8 @@ function classNames(...classes) {
 export default function Navbar() {
   const [blogs, setBlogs] = useState([]);
   const [search, setSearch] = useState("");
+  const [searchedBlog, setSearchedBlogs] = useState([]);
+
 
   useEffect(() => {
     //* Fetching from Database
@@ -37,7 +39,13 @@ export default function Navbar() {
           url += `?search=${search}`;
         }
         const response = await axios.get(url);
-        setBlogs(response.data);
+        if (search) {
+          setSearchedBlogs(response.data);
+          console.log("searching: ", search)
+        }
+        // else
+        //   setBlogs(response.data);
+
       } catch (err) {
         console.log(err);
       }
@@ -48,6 +56,7 @@ export default function Navbar() {
 
   const handleSearch = (event) => {
     setSearch(event.target.value);
+
   };
 
   return (
@@ -95,6 +104,31 @@ export default function Navbar() {
                         {item.name}
                       </Link>
                     ))}
+                    {/* Search bar */}
+                    <div className="relative ml-6">
+                      <input
+                        type="text"
+                        placeholder="Search blogs..."
+                        value={search}
+                        onChange={handleSearch}
+                        className="w-full p-2 pl-10 border border-gray-300 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      />
+                      <div className="max-h-20 overflow-y-auto">
+                    <ul className="space-y-4">
+                      {searchedBlog.map((blog) => (
+                        <li
+                          key={blog._id}
+                          className="p-4 border border-gray-300 rounded-lg shadow-md"
+                        >
+                          <h2 className="text-xl font-semibold">
+                            {blog.title}
+                          </h2>
+                          {/* <p className="text-gray-700">{blog.content}</p> */}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -108,27 +142,7 @@ export default function Navbar() {
                   <BellIcon className="h-6 w-6" aria-hidden="true" />
                 </button> */}
 
-                {/* Search */}
-                {/* <div className="container mx-auto p-4 bg-slate-50">
-                  <input
-                    type="text"
-                    placeholder="Search blogs..."
-                    value={search}
-                    onChange={handleSearch}
-                    className="w-full p-2 mb-4 border border-gray-300 rounded-lg"
-                  />
-                  <ul className="space-y-4">
-                    {blogs.map((blog) => (
-                      <li
-                        key={blog._id}
-                        className="p-4 border border-gray-300 rounded-lg shadow-md"
-                      >
-                        <h2 className="text-xl font-semibold">{blog.title}</h2>
-                        <p className="text-gray-700">{blog.content}</p>
-                      </li>
-                    ))}
-                  </ul>
-                </div> */}
+
 
                 {/* Signin and Signup Section */}
                 <div className="flex justify-end mr-3">

@@ -142,6 +142,7 @@ export default function BlogEdit() {
   // }
 
   const handleDateChange = (date) => {
+    console.log(date);
     setSelectedDate(date);
   };
   const getReadingTime = () => {
